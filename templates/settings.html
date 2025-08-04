@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Modern App{% endblock %}
+
+{% block content %}
+<div class="p-6 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Account Settings</h1>
+        <p class="text-white/70">Manage your account preferences and settings</p>
+    </div>
+
+    <form method="POST" class="space-y-8">
+        <!-- Profile Information -->
+        <div class="glass-card backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                <i class="fas fa-user-circle mr-3 text-purple-400"></i>
+                Profile Information
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">Display Name</label>
+                    <div class="glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3">
+                        <span class="text-white">{{ current_user.display_name }}</span>
+                    </div>
+                    <p class="text-white/50 text-xs mt-1">This is managed through your authentication provider</p>
+                </div>
+                
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">Email Address</label>
+                    <div class="glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3">
+                        <span class="text-white">{{ current_user.email or 'Not provided' }}</span>
+                    </div>
+                    <p class="text-white/50 text-xs mt-1">Email is managed through your authentication provider</p>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <label class="block text-white/80 text-sm font-medium mb-2">Account ID</label>
+                <div class="glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3">
+                    <span class="text-white/70 font-mono text-sm">{{ current_user.id }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="glass-card backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                <i class="fas fa-bell mr-3 text-blue-400"></i>
+                Notification Preferences
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5">
+                    <div>
+                        <h3 class="text-white font-medium">Email Notifications</h3>
+                        <p class="text-white/60 text-sm">Receive important updates via email</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="email_notifications" class="sr-only peer" 
+                               {% if settings.email_notifications %}checked{% endif %}>
+                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5">
+                    <div>
+                        <h3 class="text-white font-medium">Push Notifications</h3>
+                        <p class="text-white/60 text-sm">Get real-time notifications in your browser</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="push_notifications" class="sr-only peer" 
+                               {% if settings.push_notifications %}checked{% endif %}>
+                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5">
+                    <div>
+                        <h3 class="text-white font-medium">Marketing Emails</h3>
+                        <p class="text-white/60 text-sm">Receive product updates and promotional content</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="marketing_emails" class="sr-only peer" 
+                               {% if settings.marketing_emails %}checked{% endif %}>
+                        <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display Preferences -->
+        <div class="glass-card backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                <i class="fas fa-palette mr-3 text-indigo-400"></i>
+                Display Preferences
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">Theme</label>
+                    <select name="theme" class="w-full glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3 text-white focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20">
+                        <option value="auto" {% if settings.theme == 'auto' %}selected{% endif %} class="bg-gray-800">Auto</option>
+                        <option value="light" {% if settings.theme == 'light' %}selected{% endif %} class="bg-gray-800">Light</option>
+                        <option value="dark" {% if settings.theme == 'dark' %}selected{% endif %} class="bg-gray-800">Dark</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-white/80 text-sm font-medium mb-2">Language</label>
+                    <select name="language" class="w-full glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3 text-white focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20">
+                        <option value="en" {% if settings.language == 'en' %}selected{% endif %} class="bg-gray-800">English</option>
+                        <option value="es" {% if settings.language == 'es' %}selected{% endif %} class="bg-gray-800">Español</option>
+                        <option value="fr" {% if settings.language == 'fr' %}selected{% endif %} class="bg-gray-800">Français</option>
+                        <option value="de" {% if settings.language == 'de' %}selected{% endif %} class="bg-gray-800">Deutsch</option>
+                    </select>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label class="block text-white/80 text-sm font-medium mb-2">Timezone</label>
+                    <select name="timezone" class="w-full glass-input backdrop-blur-sm bg-white/10 border border-white/20 rounded-lg p-3 text-white focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20">
+                        <option value="UTC" {% if settings.timezone == 'UTC' %}selected{% endif %} class="bg-gray-800">UTC</option>
+                        <option value="America/New_York" {% if settings.timezone == 'America/New_York' %}selected{% endif %} class="bg-gray-800">Eastern Time</option>
+                        <option value="America/Chicago" {% if settings.timezone == 'America/Chicago' %}selected{% endif %} class="bg-gray-800">Central Time</option>
+                        <option value="America/Denver" {% if settings.timezone == 'America/Denver' %}selected{% endif %} class="bg-gray-800">Mountain Time</option>
+                        <option value="America/Los_Angeles" {% if settings.timezone == 'America/Los_Angeles' %}selected{% endif %} class="bg-gray-800">Pacific Time</option>
+                        <option value="Europe/London" {% if settings.timezone == 'Europe/London' %}selected{% endif %} class="bg-gray-800">London</option>
+                        <option value="Europe/Paris" {% if settings.timezone == 'Europe/Paris' %}selected{% endif %} class="bg-gray-800">Paris</option>
+                        <option value="Asia/Tokyo" {% if settings.timezone == 'Asia/Tokyo' %}selected{% endif %} class="bg-gray-800">Tokyo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Security -->
+        <div class="glass-card backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6">
+            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                <i class="fas fa-shield-alt mr-3 text-green-400"></i>
+                Account Security
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="p-4 rounded-lg bg-white/5 border border-white/5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-white font-medium">Authentication</h3>
+                            <p class="text-white/60 text-sm">Your account is secured with OAuth authentication</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-green-400">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="text-sm">Secured</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 rounded-lg bg-white/5 border border-white/5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-white font-medium">Session Security</h3>
+                            <p class="text-white/60 text-sm">Your session is encrypted and automatically expires</p>
+                        </div>
+                        <div class="flex items-center space-x-2 text-green-400">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="text-sm">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+            <a href="{{ url_for('dashboard') }}" 
+               class="px-6 py-3 border border-white/30 rounded-lg font-medium text-white hover:bg-white/10 transition-all duration-200 text-center">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg font-medium text-white hover:from-purple-600 hover:to-blue-600 transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

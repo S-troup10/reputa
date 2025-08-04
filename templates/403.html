@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Error{% endblock %}
+
+{% block content %}
+  <div class="text-center">
+    <h1 class="text-5xl font-extrabold text-red-400 mb-4">Oops!</h1>
+    <p class="text-xl font-semibold mb-2">Something went wrong.</p>
+    
+    {% if error_message %}
+      <p class="text-white/80 mb-6">{{ error_message }}</p>
+    {% else %}
+      <p class="text-white/80 mb-6">We couldn't process your request.</p>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="inline-block px-5 py-2 mt-4 bg-indigo-500 hover:bg-indigo-600 rounded-lg font-medium">
+      Go Back Home
+    </a>
+  </div>
+{% endblock %}
