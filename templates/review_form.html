@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review - {{ business.business_name }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .aurora-bg {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #3730a3 50%, #1e40af 75%, #1e3a8a 100%);
+    }
+
+    .star {
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .star:hover,
+    .star.active {
+      color: #fbbf24;
+      text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+      filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3));
+    }
+    
+    .form-group {
+      position: relative;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-group label {
+      position: relative;
+      z-index: 10;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .form-group {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .form-group:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    
+    .form-group:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    
+    .form-group:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen aurora-bg text-white">
+  <div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="max-w-2xl w-full">
+      
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-star text-3xl text-white"></i>
+        </div>
+        <h1 class="text-4xl font-bold mb-4">Share Your Experience</h1>
+        <h2 class="text-2xl text-yellow-400 mb-2">{{ business.business_name }}</h2>
+        <p class="text-white/80">Your feedback helps us improve our service</p>
+      </div>
+
+      <!-- Review Form -->
+      <div class="glass-card rounded-3xl p-8 shadow-2xl">
+        <form action="{{ url_for('submit_review', business_id=business.id) }}" method="POST" class="space-y-8">
+          
+          <!-- Customer Info -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="form-group">
+              <label for="customer_name" class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">
+                <i class="fas fa-user mr-2 text-yellow-400"></i>Full Name
+              </label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  name="customer_name" 
+                  id="customer_name"
+                  required 
+                  class="w-full px-5 py-4 glass-morphism rounded-xl border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all duration-300 text-white placeholder-white/50 text-lg bg-white/5 hover:bg-white/10"
+                  placeholder="Enter your full name">
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-yellow-400/20 to-orange-400/20 opacity-0 transition-opacity duration-300 pointer-events-none focus-within:opacity-100"></div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="customer_email" class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">
+                <i class="fas fa-envelope mr-2 text-yellow-400"></i>Email Address
+              </label>
+              <div class="relative">
+                <input 
+                  type="email" 
+                  name="customer_email" 
+                  id="customer_email"
+                  required 
+                  class="w-full px-5 py-4 glass-morphism rounded-xl border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all duration-300 text-white placeholder-white/50 text-lg bg-white/5 hover:bg-white/10"
+                  placeholder="your@email.com">
+                <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-yellow-400/20 to-orange-400/20 opacity-0 transition-opacity duration-300 pointer-events-none focus-within:opacity-100"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rating -->
+          <div class="form-group">
+            <label class="block text-white font-semibold mb-6 text-sm uppercase tracking-wide text-center">
+              <i class="fas fa-star mr-2 text-yellow-400"></i>Rate Your Experience
+            </label>
+            <div class="glass-morphism rounded-2xl p-8 text-center">
+              <div class="flex justify-center space-x-3 mb-6">
+                <i class="fas fa-star star text-5xl text-gray-500/50 hover:text-gray-400 transition-all duration-200 transform hover:scale-110" data-rating="1"></i>
+                <i class="fas fa-star star text-5xl text-gray-500/50 hover:text-gray-400 transition-all duration-200 transform hover:scale-110" data-rating="2"></i>
+                <i class="fas fa-star star text-5xl text-gray-500/50 hover:text-gray-400 transition-all duration-200 transform hover:scale-110" data-rating="3"></i>
+                <i class="fas fa-star star text-5xl text-gray-500/50 hover:text-gray-400 transition-all duration-200 transform hover:scale-110" data-rating="4"></i>
+                <i class="fas fa-star star text-5xl text-gray-500/50 hover:text-gray-400 transition-all duration-200 transform hover:scale-110" data-rating="5"></i>
+              </div>
+              <input type="hidden" name="rating" id="rating" required>
+              <div class="text-center">
+                <span id="rating-text" class="text-white/70 text-lg font-medium">Click a star to rate your experience</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review Text -->
+          <div class="form-group">
+            <label for="review_text" class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">
+              <i class="fas fa-comment-alt mr-2 text-yellow-400"></i>Your Feedback
+            </label>
+            <div class="relative">
+              <textarea 
+                name="review_text" 
+                id="review_text"
+                rows="5"
+                required
+                class="w-full px-5 py-4 glass-morphism rounded-xl border-2 border-transparent focus:border-yellow-400 focus:outline-none transition-all duration-300 text-white placeholder-white/50 resize-none text-lg bg-white/5 hover:bg-white/10 leading-relaxed"
+                placeholder="Share your detailed thoughts about our service... What did you like most? What could we improve?"></textarea>
+              <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-yellow-400/20 to-orange-400/20 opacity-0 transition-opacity duration-300 pointer-events-none focus-within:opacity-100"></div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <button 
+              type="submit" 
+              id="submit-btn"
+              disabled
+              class="w-full py-5 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl font-bold text-xl text-white transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none relative overflow-hidden">
+              <span class="relative z-10 flex items-center justify-center">
+                <i class="fas fa-paper-plane mr-3"></i>
+                Submit Your Review
+              </span>
+              <div class="absolute inset-0 bg-gradient-to-r from-yellow-600 to-orange-600 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
+          
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-8 text-white/60 text-sm">
+        <p>Your feedback is important to us and helps improve our service.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('rating');
+    const ratingText = document.getElementById('rating-text');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    const ratingLabels = {
+      1: 'Poor',
+      2: 'Fair', 
+      3: 'Good',
+      4: 'Very Good',
+      5: 'Excellent'
+    };
+
+    stars.forEach(star => {
+      star.addEventListener('click', function() {
+        const rating = parseInt(this.dataset.rating);
+        ratingInput.value = rating;
+        ratingText.textContent = ratingLabels[rating];
+        
+        // Update star display with animation
+        stars.forEach((s, index) => {
+          setTimeout(() => {
+            if (index < rating) {
+              s.classList.add('active');
+              s.classList.remove('text-gray-500/50');
+              s.style.transform = 'scale(1.2)';
+              setTimeout(() => s.style.transform = 'scale(1)', 200);
+            } else {
+              s.classList.remove('active');
+              s.classList.add('text-gray-500/50');
+            }
+          }, index * 100);
+        });
+        
+        // Add pulse effect to rating text
+        ratingText.style.transform = 'scale(1.1)';
+        ratingText.style.color = '#fbbf24';
+        setTimeout(() => {
+          ratingText.style.transform = 'scale(1)';
+          ratingText.style.color = '';
+        }, 200);
+        
+        // Enable submit button with animation
+        if (submitBtn.disabled) {
+          submitBtn.disabled = false;
+          submitBtn.style.transform = 'scale(1.05)';
+          setTimeout(() => submitBtn.style.transform = '', 200);
+        }
+      });
+      
+      // Add hover effects
+      star.addEventListener('mouseenter', function() {
+        const rating = parseInt(this.dataset.rating);
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.style.color = '#fbbf24';
+            s.style.textShadow = '0 0 20px rgba(251, 191, 36, 0.5)';
+          }
+        });
+      });
+      
+      star.addEventListener('mouseleave', function() {
+        stars.forEach(s => {
+          if (!s.classList.contains('active')) {
+            s.style.color = '';
+            s.style.textShadow = '';
+          }
+        });
+      });
+    });
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+      if (!ratingInput.value) {
+        e.preventDefault();
+        alert('Please select a star rating');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-
 from supabase import create_client, Client
 from datetime import datetime, timezone
 # Replace with your real values
@@ -287,8 +286,73 @@ def get_user_by_email(email):
         return False, f"Unexpected error: {e}"
 
 
+def get_business_settings(user_id):
+    """Get business settings for a user"""
+    try:
+        response = supabase.table("business_settings").select("*").eq("user_id", user_id).limit(1).execute()
+        if response.data and len(response.data) > 0:
+            return True, response.data[0]
+        return True, None
+    except Exception as e:
+        return False, str(e)
 
 
+def save_business_settings(user_id, business_name, google_review_link):
+    """Save or update business settings"""
+    try:
+        # Check if settings exist
+        existing = supabase.table("business_settings").select("*").eq("user_id", user_id).execute()
+
+        data = {
+            "user_id": user_id,
+            "business_name": business_name,
+            "google_review_link": google_review_link,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+
+        if existing.data and len(existing.data) > 0:
+            # Update existing
+            response = supabase.table("business_settings").update(data).eq("user_id", user_id).execute()
+        else:
+            # Create new
+            data["created_at"] = datetime.now(timezone.utc).isoformat()
+            response = supabase.table("business_settings").insert(data).execute()
+
+        return {'success': True, 'data': response.data}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
 
 
+def save_review_submission(business_id, customer_name, customer_email, rating, review_text, review_type='public'):
+    """Save a review submission"""
+    try:
+        data = {
+            "business_id": business_id,
+            "customer_name": customer_name,
+            "customer_email": customer_email,
+            "rating": rating,
+            "review_text": review_text,
+            "review_type": review_type,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
 
+        response = supabase.table("reviews").insert(data).execute()
+        return {'success': True, 'data': response.data}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
+def get_reviews_for_business(user_id, limit=50):
+    """Get reviews for a business"""
+    try:
+        # First get the business_id
+        business_settings = supabase.table("business_settings").select("id").eq("user_id", user_id).execute()
+        if not business_settings.data:
+            return {'success': True, 'data': []}
+
+        business_id = business_settings.data[0]['id']
+
+        response = supabase.table("reviews").select("*").eq("business_id", business_id).order("created_at", desc=True).limit(limit).execute()
+        return {'success': True, 'data': response.data}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}

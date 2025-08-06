@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You - {{ business_name }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .aurora-bg {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #3730a3 50%, #1e40af 75%, #1e3a8a 100%);
+    }
+
+    .countdown {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen aurora-bg text-white">
+  <div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="max-w-2xl w-full text-center">
+      
+      <!-- Success Message -->
+      <div class="glass-card rounded-3xl p-8 mb-8">
+        <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-check text-4xl text-white"></i>
+        </div>
+        
+        <h1 class="text-4xl font-bold mb-4">Thank You!</h1>
+        <h2 class="text-2xl text-green-400 mb-6">{{ business_name }}</h2>
+        
+        <p class="text-white/80 text-lg mb-8">
+          We're thrilled that you had a great experience! Your positive review helps other customers discover our business.
+        </p>
+
+        <!-- Countdown -->
+        <div class="glass-morphism rounded-xl p-6 mb-6">
+          <p class="text-white/80 mb-4">Redirecting to Google Reviews in:</p>
+          <div id="countdown" class="countdown text-yellow-400">5</div>
+          <p class="text-white/60 text-sm mt-2">You'll be taken to Google to share your review publicly</p>
+        </div>
+
+        <!-- Manual Button -->
+        <div class="space-y-4">
+          <a href="{{ google_link }}" 
+             class="inline-block w-full py-4 bg-gradient-to-r from-red-500 to-red-600 rounded-xl font-bold text-lg text-white transition-all transform hover:scale-105">
+            <i class="fab fa-google mr-2"></i>
+            Leave Review on Google Now
+          </a>
+          
+          <button onclick="skipRedirect()" 
+                  class="w-full py-3 border border-white/30 rounded-xl font-medium text-white hover:bg-white/10 transition-all">
+            Skip (Don't redirect)
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-white/60 text-sm">
+        <p>
+          <i class="fas fa-star mr-1 text-yellow-400"></i>
+          Your review helps our business grow. Thank you for your support!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let countdown = 5;
+    const countdownEl = document.getElementById('countdown');
+    let redirectTimer;
+
+    function updateCountdown() {
+      countdownEl.textContent = countdown;
+      
+      if (countdown <= 0) {
+        window.location.href = '{{ google_link }}';
+        return;
+      }
+      
+      countdown--;
+      redirectTimer = setTimeout(updateCountdown, 1000);
+    }
+
+    function skipRedirect() {
+      clearTimeout(redirectTimer);
+      countdownEl.textContent = 'Cancelled';
+      countdownEl.classList.add('text-gray-400');
+    }
+
+    // Start countdown
+    updateCountdown();
+  </script>
+</body>
+</html>

@@ -5,14 +5,22 @@ from flask import (
     Flask, session, render_template,
     request, flash, redirect, url_for
 )
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
 from flask_dance.contrib.google import make_google_blueprint, google
 import storage  # your Supabase wrapper
 
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret")
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
+app.config.update(
+    SESSION_COOKIE_SECURE=False,    # allow cookies over HTTP
+    SESSION_COOKIE_SAMESITE='Lax',  # normal default
+    SESSION_PERMANENT=True          # keep session persistent
+)
 
 # --- Session Config ---
 @app.before_request
@@ -40,50 +48,61 @@ def require_login(f):
 
 #-- google -- 
 google_bp = make_google_blueprint(
-    client_id='91383092955-di8bp52510dvf2d17n6cqnpvam8bk47f.apps.googleusercontent.com',
-    client_secret='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',
-    scope=["profile", "email"],
-    redirect_url=lambda: url_for("google_authorized", _external=True)
+    client_id="91383092955-di8bp52510dvf2d17n6cqnpvam8bk47f.apps.googleusercontent.com",
+    client_secret="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",
+    scope=[
+        "openid",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile",
+    ],
+    redirect_url="/login/google/success"  # Custom redirect after OAuth login
 )
-app.register_blueprint(google_bp, url_prefix="/login")
+app.register_blueprint(google_bp, url_prefix="/auth")
 
-@app.route("/login/google/authorized")
-def google_authorized():
+
+@app.route("/login/google/success")
+def google_login_success():
     if not google.authorized:
-        flash("Google login failed.", "error")
+        flash("Google login failed. Please try again.", "error")
         return redirect(url_for("login_page"))
 
     resp = google.get("/oauth2/v2/userinfo")
     if not resp.ok:
-        flash("Failed to fetch user info.", "error")
+        flash("Failed to fetch user info from Google.", "error")
         return redirect(url_for("login_page"))
 
     user_info = resp.json()
-    email = user_info["email"]
+    email = user_info.get("email")
     first = user_info.get("given_name", "")
     last = user_info.get("family_name", "")
-    business = "Google User"
 
+    if not email:
+        flash("Could not get email from Google account.", "error")
+        return redirect(url_for("login_page"))
+
+    # Replace this with your real user storage lookup
     existing_user = storage.fetch("users", {"email": email})
     if not existing_user:
-        # Automatically create user
+        # Create new user in your DB
         result = storage.add("users", {
             "first_name": first,
             "last_name": last,
-            "business": business,
+            "business": "Google User",
             "email": email,
-            "password": "",  # placeholder
+            "password": "",  # OAuth users don’t need passwords
         })
         if not result.get("success"):
-            flash("Error creating Google user.", "error")
+            flash("Error creating your account. Please try again.", "error")
             return redirect(url_for("login_page"))
         user_id = result["id"]
     else:
         user_id = existing_user[0]["id"]
 
+    # Log user in
     session["logged_in"] = True
     session["user_id"] = user_id
-    flash("Logged in with Google.", "success")
+
+    flash(f"Welcome {first}! You have been logged in with Google.", "success")
     return redirect(url_for("dashboard"))
 
 
@@ -91,6 +110,17 @@ def google_authorized():
 @app.route("/")
 def index():
     return render_template("landing.html")
+
+
+
+@app.route("/debug-session")
+def debug_session():
+    return {
+        "session_keys": list(session.keys()),
+        "google_oauth_token": session.get("google_oauth_token"),
+        "logged_in": session.get("logged_in"),
+        "user_id": session.get("user_id"),
+    }
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -149,7 +179,14 @@ def dashboard():
     user_id = session.get("user_id")
     user_data = storage.fetch("users", {"id": user_id})
     if user_data and len(user_data) > 0:
-        return render_template("dashboard.html", current_user=user_data[0])
+        # Get business settings
+        success, business_settings = storage.get_business_settings(user_id)
+        if not success:
+            business_settings = None
+            
+        return render_template("dashboard.html", 
+                             current_user=user_data[0], 
+                             business_settings=business_settings)
     else:
         flash("User not found.", "error")
         return redirect(url_for("login_page"))
@@ -162,27 +199,126 @@ def logout():
     return redirect(url_for("index"))
 
 
-@app.route("/login/google")
-def google_login():
-    if not google.authorized:
-        return redirect(url_for("google.login"))
+@app.route("/business-settings", methods=["GET", "POST"])
+@require_login
+def business_settings():
+    user_id = session.get("user_id")
+    
+    if request.method == "POST":
+        business_name = request.form.get("business_name")
+        google_review_link = request.form.get("google_review_link")
+        
+        if not all([business_name, google_review_link]):
+            flash("Please fill out all fields.", "error")
+        else:
+            result = storage.save_business_settings(user_id, business_name, google_review_link)
+            if result.get('success'):
+                flash("Business settings saved successfully!", "success")
+                return redirect(url_for("dashboard"))
+            else:
+                flash(f"Error saving settings: {result.get('error')}", "error")
+    
+    # Get existing settings
+    success, settings = storage.get_business_settings(user_id)
+    if not success:
+        flash("Error loading business settings.", "error")
+        settings = None
+    
+    return render_template("business_settings.html", settings=settings)
 
-    resp = google.get("/oauth2/v2/userinfo")
-    if not resp.ok:
-        flash("Failed to fetch user info from Google.", "error")
-        return redirect(url_for("login_page"))
 
-    user_info = resp.json()
-    session["logged_in"] = True
-    session["current_user"] = {
-        "email": user_info["email"],
-        "first_name": user_info.get("given_name", ""),
-        "last_name": user_info.get("family_name", ""),
-        "business_name": "Google Account"
-    }
+@app.route("/review-form/<int:business_id>")
+def review_form(business_id):
+    # Get business info
+    business_data = storage.fetch("business_settings", {"id": business_id})
+    if not business_data:
+        return render_template("403.html", error_message="Business not found"), 404
+    
+    return render_template("review_form.html", business=business_data[0])
 
-    flash("Successfully logged in with Google.", "success")
-    return redirect(url_for("dashboard"))
+
+@app.route("/submit-review/<int:business_id>", methods=["POST"])
+def submit_review(business_id):
+    customer_name = request.form.get("customer_name")
+    customer_email = request.form.get("customer_email")
+    rating = int(request.form.get("rating", 0))
+    review_text = request.form.get("review_text")
+    
+    if not all([customer_name, customer_email, rating, review_text]):
+        flash("Please fill out all fields.", "error")
+        return redirect(url_for("review_form", business_id=business_id))
+    
+    if rating >= 4:
+        # Save as public review and redirect to Google
+        result = storage.save_review_submission(business_id, customer_name, customer_email, rating, review_text, 'public')
+        if result.get('success'):
+            # Get Google review link
+            business_data = storage.fetch("business_settings", {"id": business_id})
+            if business_data and business_data[0].get('google_review_link'):
+                return render_template("redirect_to_google.html", 
+                                     google_link=business_data[0]['google_review_link'],
+                                     business_name=business_data[0]['business_name'])
+        flash("Thank you for your positive review!", "success")
+        return redirect(url_for("review_form", business_id=business_id))
+    else:
+        # Redirect to private feedback form
+        return redirect(url_for("private_feedback_form", business_id=business_id, 
+                              customer_name=customer_name, customer_email=customer_email, 
+                              rating=rating, review_text=review_text))
+
+
+@app.route("/private-feedback/<int:business_id>")
+def private_feedback_form(business_id):
+    # Get pre-filled data from URL params
+    customer_name = request.args.get("customer_name", "")
+    customer_email = request.args.get("customer_email", "")
+    rating = request.args.get("rating", "")
+    review_text = request.args.get("review_text", "")
+    
+    business_data = storage.fetch("business_settings", {"id": business_id})
+    if not business_data:
+        return render_template("403.html", error_message="Business not found"), 404
+    
+    return render_template("private_feedback.html", 
+                         business=business_data[0],
+                         customer_name=customer_name,
+                         customer_email=customer_email,
+                         rating=rating,
+                         review_text=review_text)
+
+
+@app.route("/submit-private-feedback/<int:business_id>", methods=["POST"])
+def submit_private_feedback(business_id):
+    customer_name = request.form.get("customer_name")
+    customer_email = request.form.get("customer_email")
+    rating = int(request.form.get("rating", 0))
+    review_text = request.form.get("review_text")
+    private_feedback = request.form.get("private_feedback", "")
+    
+    # Save as private feedback
+    full_feedback = f"Original Review: {review_text}\n\nAdditional Feedback: {private_feedback}"
+    result = storage.save_review_submission(business_id, customer_name, customer_email, rating, full_feedback, 'private')
+    
+    if result.get('success'):
+        return render_template("feedback_thank_you.html")
+    else:
+        flash("Error submitting feedback. Please try again.", "error")
+        return redirect(url_for("private_feedback_form", business_id=business_id))
+
+
+@app.route("/reviews")
+@require_login
+def view_reviews():
+    user_id = session.get("user_id")
+    reviews_result = storage.get_reviews_for_business(user_id)
+    
+    if reviews_result.get('success'):
+        reviews = reviews_result.get('data', [])
+        return render_template("view_reviews.html", reviews=reviews)
+    else:
+        flash("Error loading reviews.", "error")
+        return redirect(url_for("dashboard"))
+
 
 
 

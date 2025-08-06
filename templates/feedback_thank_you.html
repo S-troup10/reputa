@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You for Your Feedback</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .aurora-bg {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #3730a3 50%, #1e40af 75%, #1e3a8a 100%);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen aurora-bg text-white">
+  <div class="min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="max-w-2xl w-full text-center">
+      
+      <!-- Thank You Message -->
+      <div class="glass-card rounded-3xl p-8">
+        <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-heart text-4xl text-white"></i>
+        </div>
+        
+        <h1 class="text-4xl font-bold mb-6">Thank You!</h1>
+        
+        <p class="text-white/80 text-lg mb-6">
+          We sincerely appreciate you taking the time to share your feedback with us. Your input is invaluable in helping us improve our service.
+        </p>
+
+        <div class="glass-morphism rounded-xl p-6 mb-8">
+          <h3 class="text-xl font-semibold text-blue-300 mb-3">
+            <i class="fas fa-shield-alt mr-2"></i>Your Privacy Matters
+          </h3>
+          <p class="text-white/80">
+            Your feedback has been submitted privately to our team. We'll review it carefully and use it to enhance our service for future customers.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-center space-x-6 text-white/60">
+            <div class="flex items-center">
+              <i class="fas fa-lock mr-2 text-green-400"></i>
+              <span class="text-sm">Confidential</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-users mr-2 text-blue-400"></i>
+              <span class="text-sm">Team Reviewed</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-chart-line mr-2 text-purple-400"></i>
+              <span class="text-sm">Service Improvement</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-white/60 text-sm mt-8">
+        <p>
+          <i class="fas fa-handshake mr-1 text-yellow-400"></i>
+          We're committed to providing excellent service and your feedback helps us achieve that goal.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

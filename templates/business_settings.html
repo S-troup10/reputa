@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Business Settings - Quantum Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8 fade-in">
+  <!-- Header -->
+  <div class="text-center">
+    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-400 rounded-2xl flex items-center justify-center mx-auto mb-6 pulse-glow">
+      <i class="fas fa-store text-3xl text-white"></i>
+    </div>
+    <h2 class="text-4xl font-bold mb-4 glow-text">Business Settings</h2>
+    <p class="text-white/80">Configure your business for review management</p>
+  </div>
+
+  <!-- Business Settings Form -->
+  <div class="glass-card rounded-3xl p-8">
+    <form method="POST" class="space-y-6">
+      <div class="grid md:grid-cols-1 gap-6">
+        <!-- Business Name -->
+        <div class="form-group">
+                    <label for="business_name" class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">
+                        <i class="fas fa-store mr-2 text-purple-400"></i>Business Name
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            name="business_name" 
+                            id="business_name"
+                            value="{{ settings.business_name if settings else '' }}"
+                            required 
+                            class="w-full px-5 py-4 glass-morphism rounded-xl border-2 border-transparent focus:border-purple-400 focus:outline-none transition-all duration-300 text-white placeholder-white/50 text-lg bg-white/5 hover:bg-white/10"
+                            placeholder="Enter your business name">
+                        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400/20 to-blue-400/20 opacity-0 transition-opacity duration-300 pointer-events-none focus-within:opacity-100"></div>
+                    </div>
+                </div>
+
+                <!-- Google Review Link -->
+                <div class="form-group">
+                    <label for="google_review_link" class="block text-white font-semibold mb-3 text-sm uppercase tracking-wide">
+                        <i class="fab fa-google mr-2 text-purple-400"></i>Google Review Link
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="url" 
+                            name="google_review_link" 
+                            id="google_review_link"
+                            value="{{ settings.google_review_link if settings else '' }}"
+                            required 
+                            class="w-full px-5 py-4 glass-morphism rounded-xl border-2 border-transparent focus:border-purple-400 focus:outline-none transition-all duration-300 text-white placeholder-white/50 text-lg bg-white/5 hover:bg-white/10"
+                            placeholder="https://g.page/your-business/review">
+                        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400/20 to-blue-400/20 opacity-0 transition-opacity duration-300 pointer-events-none focus-within:opacity-100"></div>
+                    </div>
+                    <p class="text-white/60 text-sm mt-2">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        This is where 4+ star reviews will be redirected
+                    </p>
+                </div>
+      </div>
+
+      <!-- Custom Review Form Link Display -->
+      {% if settings %}
+      <div class="glass-morphism rounded-2xl p-6">
+        <h3 class="text-xl font-bold text-white mb-4">
+          <i class="fas fa-link mr-2 text-green-400"></i>
+          Your Custom Review Form
+        </h3>
+        <div class="bg-black/30 rounded-xl p-4 mb-4">
+          <code class="text-green-400 text-sm break-all">
+            {{ request.url_root }}review-form/{{ settings.id }}
+          </code>
+        </div>
+        <p class="text-white/70 text-sm mb-4">
+          Share this link with your customers to collect reviews. Reviews 4+ stars will be redirected to Google, while lower ratings will be kept private for your feedback.
+        </p>
+        <button type="button" onclick="copyToClipboard('{{ request.url_root }}review-form/{{ settings.id }}')" 
+                class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-400 rounded-lg text-white font-medium hover:from-green-600 hover:to-teal-500 transition-all scale-hover">
+          <i class="fas fa-copy mr-2"></i>Copy Link
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-between">
+        <a href="{{ url_for('dashboard') }}" 
+           class="px-6 py-3 border border-white/30 rounded-xl font-medium text-white hover:bg-white/10 transition-all text-center scale-hover">
+          <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+        </a>
+
+        <div class="flex gap-4">
+          {% if settings %}
+          <a href="{{ url_for('view_reviews') }}" 
+             class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl font-medium text-white hover:from-blue-600 hover:to-purple-600 transition-all scale-hover">
+            <i class="fas fa-eye mr-2"></i>View Reviews
+          </a>
+          {% endif %}
+
+          <button type="submit" 
+                  class="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-400 rounded-xl font-medium text-white hover:from-green-600 hover:to-teal-500 transition-all scale-hover">
+            <i class="fas fa-save mr-2"></i>Save Settings
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    // Show success message
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+    button.classList.add('bg-green-600');
+
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.classList.remove('bg-green-600');
+    }, 2000);
+  }, function(err) {
+    console.error('Could not copy text: ', err);
+  });
+}
+</script>
+{% endblock %}

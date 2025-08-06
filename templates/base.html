@@ -1,48 +1,319 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}My App{% endblock %}</title>
+  <title>{% block title %}Quantum Dashboard{% endblock %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e8eaed;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px rgba(60, 64, 67, 0.15);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3), 0 8px 16px rgba(60, 64, 67, 0.15);
+    }
+
+    .nav-card {
+      background: #ffffff;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3);
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 24px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+      box-shadow: 0 1px 3px rgba(26, 115, 232, 0.5);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      padding: 8px 24px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: #f8f9fa;
+      border-color: #1a73e8;
+    }
+
+    .input-field {
+      border: 2px solid #dadce0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      transition: border-color 0.2s ease;
+      background: #ffffff;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
+    .text-primary {
+      color: #1a73e8;
+    }
+
+    .text-secondary {
+      color: #5f6368;
+    }
+
+    .text-success {
+      color: #34a853;
+    }
+
+    .text-warning {
+      color: #fbbc04;
+    }
+
+    .text-error {
+      color: #ea4335;
+    }
+
+    .bg-primary {
+      background-color: #1a73e8;
+    }
+
+    .bg-success {
+      background-color: #34a853;
+    }
+
+    .bg-warning {
+      background-color: #fbbc04;
+    }
+
+    .bg-error {
+      background-color: #ea4335;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .nav-link {
+      color: #5f6368;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .nav-link:hover {
+      background: #f8f9fa;
+      color: #1a73e8;
+    }
+
+    .nav-link.active {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white font-sans">
+
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <!-- Navigation -->
+  <nav class="w-full bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+              <i class="fas fa-atom text-white text-lg"></i>
+            </div>
+            <h1 class="text-xl font-semibold text-gray-900">Quantum</h1>
+          </div>
+        </div>
+
+        <div class="hidden md:flex items-center space-x-2">
+          {% if request.endpoint != 'index' %}
+          <a href="/" class="nav-link">
+            <i class="fas fa-home mr-2"></i>Home
+          </a>
+          {% endif %}
+          
+          {% if not session.get('logged_in') %}
+            {% if request.endpoint != 'signup' %}
+            <a href="/signup" class="nav-link">
+              <i class="fas fa-user-plus mr-2"></i>Sign Up
+            </a>
+            {% endif %}
+            {% if request.endpoint != 'login_page' %}
+            <a href="/login" class="btn-primary">
+              <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+            </a>
+            {% endif %}
+          {% else %}
+            {% if request.endpoint != 'dashboard' %}
+            <a href="/dashboard" class="nav-link">
+              <i class="fas fa-dashboard mr-2"></i>Dashboard
+            </a>
+            {% endif %}
+            <a href="/logout" class="nav-link text-error">
+              <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+            </a>
+          {% endif %}
+        </div>
+
+        <!-- Mobile menu button -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleMobileMenu()">
+          <i class="fas fa-bars text-gray-600"></i>
+        </button>
+      </div>
+      
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden mt-4 border-t border-gray-200 pt-4">
+        <div class="flex flex-col space-y-2">
+          {% if request.endpoint != 'index' %}
+          <a href="/" class="nav-link">
+            <i class="fas fa-home mr-2"></i>Home
+          </a>
+          {% endif %}
+          
+          {% if not session.get('logged_in') %}
+            {% if request.endpoint != 'signup' %}
+            <a href="/signup" class="nav-link">
+              <i class="fas fa-user-plus mr-2"></i>Sign Up
+            </a>
+            {% endif %}
+            {% if request.endpoint != 'login_page' %}
+            <a href="/login" class="nav-link">
+              <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+            </a>
+            {% endif %}
+          {% else %}
+            {% if request.endpoint != 'dashboard' %}
+            <a href="/dashboard" class="nav-link">
+              <i class="fas fa-dashboard mr-2"></i>Dashboard
+            </a>
+            {% endif %}
+            <a href="/logout" class="nav-link text-error">
+              <i class="fas fa-sign-out-alt mr-2"></i>Sign Out
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
 
   <!-- Main Container -->
-  <div class="min-h-screen flex flex-col items-center justify-start py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-8">
 
-    <!-- Glass Card -->
-    <div class="w-full max-w-4xl bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl px-8 py-10">
-      
-      <!-- Navigation -->
-      <nav class="flex justify-between items-center mb-10">
-        <h1 class="text-2xl font-bold tracking-tight">MyApp</h1>
-        <div class="space-x-6">
-          <a href="/" class="hover:underline font-medium">Home</a>
-          <a href="/signup" class="hover:underline font-medium">Sign Up</a>
-          <a href="/login" class="hover:underline font-medium">Log in</a>
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="mb-6 space-y-3">
+        {% for category, msg in messages %}
+        <div class="card p-4 border-l-4 
+                {% if category == 'error' %}border-red-500 bg-red-50
+                {% elif category == 'success' %}border-green-500 bg-green-50
+                {% else %}border-blue-500 bg-blue-50{% endif %} 
+                fade-in">
+          <div class="flex items-center">
+            <i class="fas fa-{% if category == 'error' %}exclamation-circle text-error{% elif category == 'success' %}check-circle text-success{% else %}info-circle text-primary{% endif %} mr-3"></i>
+            <span class="font-medium text-gray-900">{{ msg }}</span>
+          </div>
         </div>
-      </nav>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
 
       <!-- Page Content -->
       <main>
         {% block content %}
-        <div class="text-center">
-          <h2 class="text-4xl font-extrabold mb-4">Welcome to <span class="text-indigo-400">MyApp</span></h2>
-          <p class="text-white/80 text-lg max-w-2xl mx-auto">
-            A sleek starting point for your web app with Tailwind CSS and glassmorphism.
-          </p>
+        <div class="text-center space-y-8">
+          <div class="max-w-4xl mx-auto">
+            <h2 class="text-5xl font-light text-gray-900 mb-6">
+              Welcome to <span class="text-primary font-medium">Quantum</span>
+            </h2>
+            <p class="text-xl text-secondary max-w-3xl mx-auto leading-relaxed">
+              Professional review management platform designed for modern businesses. 
+              Streamline your customer feedback and boost your online reputation.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+              <a href="/login" class="btn-primary text-lg px-8 py-3">
+                Get Started
+              </a>
+              <a href="#features" class="btn-secondary text-lg px-8 py-3">
+                Learn More
+              </a>
+            </div>
+          </div>
         </div>
         {% endblock %}
       </main>
-
     </div>
-    
-    <!-- Optional Footer -->
-    <footer class="mt-10 text-white/60 text-sm">
-      &copy; 2025 MyApp. All rights reserved.
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+      <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="text-center text-secondary">
+          <p>&copy; 2025 Quantum Platform. Built with care for professional businesses.</p>
+        </div>
+      </div>
     </footer>
   </div>
 
+  <script>
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    }
+
+    // Add loading states for form submissions
+    document.addEventListener('DOMContentLoaded', function () {
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        form.addEventListener('submit', function () {
+          const submitBtn = this.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+          }
+        });
+      });
+    });
+  </script>
 </body>
+
 </html>

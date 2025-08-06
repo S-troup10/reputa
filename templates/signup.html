@@ -1,57 +1,146 @@
 {% extends "base.html" %}
-{% block title %}Sign Up{% endblock %}
+{% block title %}Create Account - Quantum{% endblock %}
 
 {% block content %}
+<div class="max-w-2xl mx-auto space-y-6 fade-in">
+  <!-- Header -->
   <div class="text-center">
-    <h2 class="text-3xl font-bold mb-4">Create Your Account</h2>
+    <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-user-plus text-2xl text-white"></i>
+    </div>
+    <h2 class="text-3xl font-light text-gray-900 mb-2">Create your account</h2>
+    <p class="text-secondary">Start managing your business reviews today</p>
+  </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="mb-4">
-          {% for category, msg in messages %}
-            <div class="text-sm p-2 rounded bg-white/20 text-white">{{ msg }}</div>
-          {% endfor %}
+  <!-- Signup Form -->
+  <div class="card p-8">
+    <form method="POST" class="space-y-6" id="signupForm">
+      <!-- Name Fields -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First name</label>
+          <input type="text" name="first_name" id="first_name" required 
+            class="w-full input-field" placeholder="Enter your first name">
         </div>
-      {% endif %}
-    {% endwith %}
 
-    <form method="POST" class="space-y-4 text-left">
-      <div class="flex gap-4">
-        <input type="text" name="first_name" placeholder="First Name" required
-          class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
-        <input type="text" name="last_name" placeholder="Last Name" required
-          class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
+        <div>
+          <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last name</label>
+          <input type="text" name="last_name" id="last_name" required 
+            class="w-full input-field" placeholder="Enter your last name">
+        </div>
       </div>
 
-      <input type="text" name="business_name" placeholder="Business Name" required
-        class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
+      <!-- Business Name -->
+      <div>
+        <label for="business_name" class="block text-sm font-medium text-gray-700 mb-2">Business name</label>
+        <input type="text" name="business_name" id="business_name" required 
+          class="w-full input-field" placeholder="Enter your business name">
+      </div>
 
-      <input type="email" name="email" placeholder="Email Address" required
-        class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+        <input type="email" name="email" id="email" required 
+          class="w-full input-field" placeholder="Enter your email address">
+      </div>
 
-      <input type="password" name="password" placeholder="Password" required
-        class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
+      <!-- Password Fields -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <input type="password" name="password" id="password" required 
+            class="w-full input-field" placeholder="Create a password">
+        </div>
 
-      <input type="password" name="confirm_password" placeholder="Confirm Password" required
-        class="w-full p-2 rounded bg-white/10 border border-white/20 focus:outline-none">
+        <div>
+          <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm password</label>
+          <input type="password" name="confirm_password" id="confirm_password" required 
+            class="w-full input-field" placeholder="Confirm your password">
+        </div>
+      </div>
 
-      <button type="submit" class="w-full p-2 bg-indigo-500 rounded hover:bg-indigo-600 font-semibold">
-        Sign Up
+      <!-- Terms & Conditions -->
+      <div class="flex items-start space-x-3">
+        <input type="checkbox" id="terms" required 
+          class="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-blue-500">
+        <label for="terms" class="text-sm text-gray-700">
+          I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and 
+          <a href="#" class="text-primary hover:underline">Privacy Policy</a>
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="w-full btn-primary py-3 text-lg font-medium">
+        Create Account
       </button>
     </form>
 
-    <div class="mt-6">
-      <p class="text-sm mb-2">or</p>
-      <a href="{{ url_for('google_login') }}"
-         class="inline-flex items-center px-4 py-2 bg-white text-black rounded hover:bg-gray-200">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-2">
-        Sign up with Google
-      </a>
+    <!-- Divider -->
+    <div class="relative my-6">
+      <div class="absolute inset-0 flex items-center">
+        <div class="w-full border-t border-gray-300"></div>
+      </div>
+      <div class="relative flex justify-center text-sm">
+        <span class="px-4 bg-white text-secondary">or</span>
+      </div>
     </div>
 
-    <p class="mt-4 text-sm text-white/70">
-      Already have an account?
-      <a href="{{ url_for('login_page') }}" class="underline hover:text-white">Log in here</a>
+    <!-- Google Signup -->
+    <a href="{{ url_for('google.login') }}" 
+       class="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200 font-medium">
+      <svg class="w-5 h-5 mr-3" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </a>
+  </div>
+
+  <!-- Login Link -->
+  <div class="text-center">
+    <p class="text-secondary">
+      Already have an account? 
+      <a href="{{ url_for('login_page') }}" class="text-primary font-medium hover:underline">
+        Sign in
+      </a>
     </p>
   </div>
+
+  <!-- Benefits Preview -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+    <div class="card p-4 text-center">
+      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+        <i class="fas fa-gift text-success"></i>
+      </div>
+      <h4 class="font-medium text-gray-900 mb-1">Free Trial</h4>
+      <p class="text-secondary text-sm">30 days full access</p>
+    </div>
+
+    <div class="card p-4 text-center">
+      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+        <i class="fas fa-headset text-primary"></i>
+      </div>
+      <h4 class="font-medium text-gray-900 mb-1">24/7 Support</h4>
+      <p class="text-secondary text-sm">Always here to help</p>
+    </div>
+
+    <div class="card p-4 text-center">
+      <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+        <i class="fas fa-star text-warning"></i>
+      </div>
+      <h4 class="font-medium text-gray-900 mb-1">Professional Tools</h4>
+      <p class="text-secondary text-sm">Advanced features</p>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('signupForm').addEventListener('submit', function(e) {
+  const button = this.querySelector('button[type="submit"]');
+  button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating account...';
+  button.disabled = true;
+});
+</script>
 {% endblock %}

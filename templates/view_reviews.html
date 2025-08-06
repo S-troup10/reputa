@@ -1,0 +1,188 @@
+
+{% extends "base.html" %}
+{% block title %}Reviews Dashboard - Quantum Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8 fade-in">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h1 class="text-4xl font-bold glow-text">Reviews Dashboard</h1>
+      <p class="text-white/80">Monitor and manage your customer feedback</p>
+    </div>
+    
+    <div class="flex gap-4">
+      <a href="{{ url_for('business_settings') }}" 
+         class="px-4 py-2 border border-white/30 rounded-xl font-medium text-white hover:bg-white/10 transition-all scale-hover">
+        <i class="fas fa-cog mr-2"></i>Settings
+      </a>
+      <a href="{{ url_for('dashboard') }}" 
+         class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-medium text-white hover:from-indigo-600 hover:to-purple-600 transition-all scale-hover">
+        <i class="fas fa-arrow-left mr-2"></i>Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    {% set total_reviews = reviews|length %}
+    {% set public_reviews = reviews|selectattr('review_type', 'equalto', 'public')|list|length %}
+    {% set private_reviews = reviews|selectattr('review_type', 'equalto', 'private')|list|length %}
+    {% set avg_rating = (reviews|sum(attribute='rating') / total_reviews) if total_reviews > 0 else 0 %}
+    
+    <div class="glass-card rounded-2xl p-6 scale-hover">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center">
+          <i class="fas fa-star text-white text-lg"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-1">{{ "%.1f"|format(avg_rating) }}</h3>
+      <p class="text-white/70 text-sm">Average Rating</p>
+    </div>
+    
+    <div class="glass-card rounded-2xl p-6 scale-hover">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-400 rounded-xl flex items-center justify-center">
+          <i class="fas fa-comments text-white text-lg"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-1">{{ total_reviews }}</h3>
+      <p class="text-white/70 text-sm">Total Reviews</p>
+    </div>
+    
+    <div class="glass-card rounded-2xl p-6 scale-hover">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-400 rounded-xl flex items-center justify-center">
+          <i class="fab fa-google text-white text-lg"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-1">{{ public_reviews }}</h3>
+      <p class="text-white/70 text-sm">Public Reviews</p>
+    </div>
+    
+    <div class="glass-card rounded-2xl p-6 scale-hover">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-400 rounded-xl flex items-center justify-center">
+          <i class="fas fa-lock text-white text-lg"></i>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-1">{{ private_reviews }}</h3>
+      <p class="text-white/70 text-sm">Private Feedback</p>
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <div class="glass-card rounded-3xl p-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-white">Recent Reviews</h2>
+      <div class="flex items-center space-x-4">
+        <select class="glass-morphism rounded-lg px-3 py-2 text-white text-sm" onchange="filterReviews(this.value)">
+          <option value="all">All Reviews</option>
+          <option value="public">Public Only</option>
+          <option value="private">Private Only</option>
+          <option value="5">5 Stars</option>
+          <option value="4">4 Stars</option>
+          <option value="3">3 Stars</option>
+          <option value="2">2 Stars</option>
+          <option value="1">1 Star</option>
+        </select>
+      </div>
+    </div>
+
+    {% if reviews %}
+    <div class="space-y-4" id="reviews-container">
+      {% for review in reviews %}
+      <div class="glass-morphism rounded-2xl p-6 review-item" 
+           data-type="{{ review.review_type }}" 
+           data-rating="{{ review.rating }}">
+        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-4 mb-3">
+              <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span class="text-white font-bold">{{ review.customer_name[0].upper() }}</span>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">{{ review.customer_name }}</h3>
+                <p class="text-white/60 text-sm">{{ review.customer_email }}</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2 mb-3">
+              {% for i in range(1, 6) %}
+                <i class="fas fa-star {{ 'text-yellow-400' if i <= review.rating else 'text-gray-500' }}"></i>
+              {% endfor %}
+              <span class="text-white/80 ml-2">{{ review.rating }} star{{ 's' if review.rating != 1 else '' }}</span>
+            </div>
+            
+            <p class="text-white/80 mb-3">{{ review.review_text }}</p>
+            
+            <div class="flex items-center gap-4 text-sm">
+              {% if review.review_type == 'public' %}
+                <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full flex items-center">
+                  <i class="fab fa-google mr-1"></i>
+                  Public Review
+                </span>
+              {% else %}
+                <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full flex items-center">
+                  <i class="fas fa-lock mr-1"></i>
+                  Private Feedback
+                </span>
+              {% endif %}
+              <span class="text-white/60">
+                {{ review.created_at[:10] if review.created_at else 'N/A' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <div class="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-inbox text-white text-xl"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-white mb-2">No Reviews Yet</h3>
+      <p class="text-white/60 mb-6">Start collecting reviews by sharing your review form link with customers.</p>
+      <a href="{{ url_for('business_settings') }}" 
+         class="inline-block px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl font-medium text-white hover:from-indigo-600 hover:to-purple-600 transition-all scale-hover">
+        <i class="fas fa-cog mr-2"></i>Configure Settings
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function filterReviews(filter) {
+  const reviews = document.querySelectorAll('.review-item');
+  
+  reviews.forEach(review => {
+    const type = review.dataset.type;
+    const rating = review.dataset.rating;
+    let show = false;
+    
+    switch(filter) {
+      case 'all':
+        show = true;
+        break;
+      case 'public':
+        show = type === 'public';
+        break;
+      case 'private':
+        show = type === 'private';
+        break;
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+        show = rating === filter;
+        break;
+    }
+    
+    review.style.display = show ? 'block' : 'none';
+  });
+}
+</script>
+{% endblock %}
